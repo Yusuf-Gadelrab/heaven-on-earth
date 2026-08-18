@@ -11,6 +11,10 @@ This is two things in one small repo:
 
 Compute for good, and noticing good. Zero dependencies. Pure Python standard library. MIT licensed.
 
+![Mission Control — a live 4-node grid](docs/img/mission-control.png)
+
+*A real run on a 4-node grid: 100,000,000 Monte Carlo samples in 2.9 s, and π(20,000,000) = 1,270,607 primes with every unit computed twice and verified — the strongest node took 58.8% of the work, the weakest 3.1%, nobody had to configure anything.*
+
 This is v0.1 — brand new, built in public, and honest about it (see [Limitations](#honest-v01-limitations)).
 
 ## Quickstart
@@ -86,7 +90,9 @@ Worker flags:
 
 ## The Good Map
 
-The same coordinator, the same SQLite database, a different kind of good: a map of everyday kindness in your neighborhood. Leaflet + OpenStreetMap/CARTO dark tiles, at `/good`.
+The same coordinator, the same SQLite database, a different kind of good: a map of everyday kindness in your neighborhood. Leaflet + OpenStreetMap tiles (restyled dark), at `/good`.
+
+![The Good Map — everyday kindness, pinned](docs/img/good-map.jpg)
 
 Categories in v0.1: **food share** · **community fridge** · **little free library** · **cleanup crew** · **water station** · **act of kindness**.
 

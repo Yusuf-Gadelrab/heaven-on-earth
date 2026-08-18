@@ -114,6 +114,8 @@
   .leaflet-control-attribution{
     background:rgba(10,10,10,.75) !important;color:var(--mut) !important;font-size:9.5px !important;
   }
+  /* OSM tiles are light; invert to match the theme without a keyed dark-tile provider */
+  .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.72) contrast(1.1) saturate(.45)}
   .leaflet-control-attribution a{color:var(--gold-deep) !important}
 
   /* ---------- popup content ---------- */
@@ -207,8 +209,8 @@
 
   /* ---------- map ---------- */
   var map = L.map('map', { zoomControl: true }).setView([37.335, -121.881], 13);
-  L.tileLayer('https://{s}.basemap.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap contributors © CARTO',
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
     subdomains: 'abcd',
     maxZoom: 20
   }).addTo(map);
