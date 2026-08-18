@@ -34,7 +34,7 @@ def main():
     bad = tasks.execute("research_fetch", {"url": "file:///etc/passwd", "query": "x"}, cores=1)
     assert bad["status"] == "error", "non-http(s) URLs must be refused"
 
-    print("all task tests pass ✓")
+    print("all task tests pass")  # ascii only: Windows consoles choke on unicode
 
 
 # the guard matters: on Windows multiprocessing re-imports this module in child processes
