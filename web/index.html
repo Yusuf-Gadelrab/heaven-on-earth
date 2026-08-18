@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEAVEN ON EARTH — Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --gold:#d4af37;
+    --gold-deep:#b8962e;
+    --ink:#f5f0e6;
+    --mut:#8a8578;
+    --hair:1px solid rgba(212,175,55,.22);
+    --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:var(--gold);text-decoration:none}
+  a:hover{color:var(--ink)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px 90px}
+
+  .label{
+    font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--mut);font-weight:500;
+  }
+
+  /* ---------- hero ---------- */
+  header{padding:72px 0 40px;border-bottom:var(--hair)}
+  .hero-top{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  h1{
+    font-family:var(--serif);font-weight:300;
+    font-size:clamp(38px,6vw,62px);
+    letter-spacing:.14em;line-height:1.05;color:var(--ink);
+  }
+  h1 .accent{color:var(--gold)}
+  .tagline{
+    font-family:var(--serif);font-weight:300;font-style:italic;
+    font-size:20px;color:var(--mut);margin-top:14px;
+  }
+  .goodlink{
+    font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;
+    border:var(--hair);padding:11px 20px;white-space:nowrap;
+    transition:border-color .25s,color .25s;
+  }
+  .goodlink:hover{border-color:rgba(212,175,55,.55);color:var(--gold)}
+  #offline{
+    display:none;margin-top:22px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--mut);
+  }
+  #offline .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mut);
+    margin-right:8px;vertical-align:1px;animation:fade 1.6s ease-in-out infinite}
+  body.offline #offline{display:block}
+  @keyframes fade{0%,100%{opacity:.25}50%{opacity:1}}
+
+  /* ---------- stats ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:1px;background:rgba(212,175,55,.22);border:var(--hair);margin-top:56px;
+  }
+  .stat{background:var(--bg);padding:28px 26px 24px}
+  .stat .num{
+    font-family:var(--serif);font-weight:300;font-size:42px;line-height:1.1;
+    color:var(--ink);margin-top:12px;font-variant-numeric:tabular-nums;
+  }
+  .stat .num .unit{font-size:15px;color:var(--gold-deep);letter-spacing:.08em;margin-left:8px}
+  .stat .num .dim{color:var(--mut)}
+
+  /* ---------- sections ---------- */
+  section{margin-top:72px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:var(--hair);padding-bottom:14px;margin-bottom:26px}
+  h2{
+    font-family:var(--serif);font-weight:500;font-size:24px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+  }
+  .empty{color:var(--mut);font-family:var(--serif);font-style:italic;font-size:17px;padding:18px 2px}
+
+  /* ---------- nodes ---------- */
+  .nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px}
+  .node{border:var(--hair);padding:24px 24px 22px;background:rgba(245,240,230,.012)}
+  .node-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .node-name{font-family:var(--serif);font-weight:500;font-size:26px;letter-spacing:.03em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .status{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--mut);flex:none}
+  .status .sdot{width:8px;height:8px;border-radius:50%;background:#4a463d}
+  .status.online{color:var(--gold-deep)}
+  .status.online .sdot{background:var(--gold);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.45)}
+    50%{box-shadow:0 0 0 6px rgba(212,175,55,0)}
+  }
+  .node-meta{color:var(--mut);font-size:12px;margin-top:6px;letter-spacing:.04em}
+  .node-figures{display:flex;gap:34px;margin-top:20px}
+  .fig .label{font-size:9.5px}
+  .fig .v{font-family:var(--serif);font-weight:300;font-size:24px;margin-top:3px;
+    font-variant-numeric:tabular-nums}
+  .share{margin-top:20px}
+  .bar{height:3px;background:rgba(245,240,230,.08);overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold))}
+  .share-cap{display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+  .share-cap b{color:var(--gold);font-weight:500}
+  .lastseen{margin-top:14px;font-size:10.5px;color:var(--mut);letter-spacing:.08em}
+
+  /* ---------- jobs ---------- */
+  .job{border-bottom:var(--hair);padding:20px 2px 22px}
+  .job:first-child{border-top:var(--hair)}
+  .job-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .job-name{font-family:var(--serif);font-weight:500;font-size:21px;letter-spacing:.02em}
+  .badge{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px;
+    border:1px solid rgba(138,133,120,.4);color:var(--mut)}
+  .badge.running{border-color:rgba(212,175,55,.5);color:var(--gold)}
+  .badge.done{border-color:rgba(212,175,55,.28);color:var(--gold-deep)}
+  .badge.failed,.badge.error{border-color:rgba(176,106,95,.5);color:#b06a5f}
+  .badge.verify{border-color:rgba(212,175,55,.4);color:var(--gold-deep)}
+  .job-right{margin-left:auto;font-size:11px;color:var(--mut);letter-spacing:.06em;
+    font-variant-numeric:tabular-nums}
+  .job-bar{margin-top:14px;height:3px;background:rgba(245,240,230,.08);overflow:hidden;position:relative}
+  .job-bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));
+    transition:width .6s ease;position:relative;overflow:hidden}
+  .job.running .job-bar > i::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(245,240,230,.55),transparent);
+    animation:sheen 1.8s linear infinite;
+  }
+  @keyframes sheen{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .job-result{margin-top:12px;font-family:var(--serif);font-size:18px;color:var(--gold);
+    font-weight:300;letter-spacing:.02em}
+
+  /* ---------- give work ---------- */
+  .give{border:var(--hair);padding:32px;margin-top:26px;background:rgba(245,240,230,.012)}
+  .give-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px}
+  button{
+    font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);background:transparent;border:1px solid rgba(212,175,55,.4);
+    padding:14px 22px;cursor:pointer;transition:all .25s;
+  }
+  button:hover{background:rgba(212,175,55,.08);border-color:var(--gold)}
+  button:disabled{opacity:.35;cursor:default}
+  button.primary{background:var(--gold);color:#0a0a0a;border-color:var(--gold);font-weight:600}
+  button.primary:hover{background:var(--gold-deep);border-color:var(--gold-deep)}
+  .research{margin-top:26px;padding-top:24px;border-top:1px solid rgba(212,175,55,.12)}
+  .research .fields{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px;max-width:560px}
+  input[type=text],textarea{
+    width:100%;background:rgba(245,240,230,.03);border:var(--hair);color:var(--ink);
+    font-family:var(--sans);font-size:13px;padding:12px 14px;outline:none;
+    transition:border-color .25s;
+  }
+  textarea{font-family:var(--mono);font-size:12px;min-height:84px;resize:vertical}
+  input[type=text]:focus,textarea:focus{border-color:rgba(212,175,55,.6)}
+  ::placeholder{color:#5c584d}
+  #jobmsg{margin-top:14px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);min-height:16px}
+
+  /* ---------- footer ---------- */
+  footer{margin-top:96px;border-top:var(--hair);padding-top:32px;color:var(--mut);font-size:11.5px;
+    letter-spacing:.08em}
+  .snippet{
+    margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--gold-deep);
+    background:rgba(245,240,230,.025);border:var(--hair);padding:16px 18px;
+    overflow-x:auto;white-space:nowrap;
+  }
+  .snippet .cmt{color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="hero-top">
+      <div>
+        <div class="label">Volunteer compute grid · community edition</div>
+        <h1>HEAVEN <span class="accent">ON</span> EARTH</h1>
+        <p class="tagline">One machine, made of everyone.</p>
+      </div>
+      <a class="goodlink" href="/good">The Good Map →</a>
+    </div>
+    <div id="offline"><span class="dot"></span>coordinator offline — retrying</div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">Grid Power</div>
+      <div class="num"><span id="s-power">—</span><span class="unit">kH/s</span></div>
+    </div>
+    <div class="stat">
+      <div class="label">Nodes Online</div>
+      <div class="num"><span id="s-online">—</span><span class="dim"> / </span><span id="s-total" class="dim">—</span></div>
+    </div>
+    <div class="stat">
+      <div class="label">Chunks Completed</div>
+      <div class="num" id="s-chunks">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Good Deeds Mapped</div>
+      <div class="num" id="s-deeds">—</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Nodes</h2>
+      <span class="label">sorted by score</span>
+    </div>
+    <div class="nodes" id="nodes"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Jobs</h2>
+      <span class="label">newest first</span>
+    </div>
+    <div id="jobs"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Give the grid work</h2></div>
+    <div class="give">
+      <div class="label">One click — the grid splits it across every node</div>
+      <div class="give-row">
+        <button id="b-pi">Estimate π · 10M samples</button>
+        <button id="b-primes">Count primes &lt; 2,000,000 · verified ×2</button>
+      </div>
+      <div class="research">
+        <div class="label">Parallel research</div>
+        <div class="fields">
+          <input type="text" id="r-query" placeholder="What are we looking for?" maxlength="200">
+          <textarea id="r-urls" placeholder="one URL per line" spellcheck="false"></textarea>
+          <div><button id="b-research" class="primary">Send to the grid</button></div>
+        </div>
+      </div>
+      <div id="jobmsg"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Heaven on Earth · open source · MIT</div>
+    <div class="snippet"><span class="cmt"># add any computer to this machine</span><br>python3 worker.py --join http://&lt;this-host&gt;:8940</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TASK_NAMES = {
+    monte_carlo_pi: 'Estimate π',
+    prime_count: 'Count primes',
+    research_fetch: 'Parallel research'
+  };
+
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
+  }
+  function num(v){ var n = Number(v); return isFinite(n) ? n : 0; }
+  function fmtInt(v){ return num(v).toLocaleString(); }
+  function fmtDur(s){
+    s = Math.max(0, Math.round(num(s)));
+    if (s < 90) return s + 's';
+    var m = Math.floor(s / 60);
+    if (m < 90) return m + 'm ' + (s % 60) + 's';
+    return Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+  }
+
+  function setOffline(off){
+    document.body.classList.toggle('offline', !!off);
+  }
+
+  /* ---------- render ---------- */
+
+  function render(d){
+    var g = (d && d.grid) || {};
+    $('s-power').textContent = num(g.grid_score).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    $('s-online').textContent = fmtInt(g.nodes_online);
+    $('s-total').textContent = fmtInt(g.nodes_total);
+    $('s-chunks').textContent = fmtInt(g.chunks_done);
+    $('s-deeds').textContent = fmtInt(g.good_deeds);
+    renderNodes(Array.isArray(d && d.nodes) ? d.nodes : []);
+    renderJobs(Array.isArray(d && d.jobs) ? d.jobs : []);
+  }
+
+  function renderNodes(nodes){
+    var box = $('nodes');
+    box.textContent = '';
+    if (!nodes.length) {
+      box.appendChild(el('div', 'empty', 'No nodes yet — run the worker below on any computer.'));
+      return;
+    }
+    nodes.forEach(function(n){
+      var card = el('div', 'node');
+
+      var top = el('div', 'node-top');
+      top.appendChild(el('div', 'node-name', n.name || n.id || 'node'));
+      var online = String(n.status || '').toLowerCase() === 'online';
+      var st = el('div', 'status' + (online ? ' online' : ''));
+      st.appendChild(el('span', 'sdot'));
+      st.appendChild(el('span', null, online ? 'online' : 'offline'));
+      top.appendChild(st);
+      card.appendChild(top);
+
+      var ram = num(n.ram_gb);
+      var ramTxt = (ram % 1 === 0 ? ram.toFixed(0) : ram.toFixed(1));
+      card.appendChild(el('div', 'node-meta',
+        (n.os || '?') + ' · ' + (n.arch || '?') + ' · ' +
+        fmtInt(n.cores) + ' cores · ' + ramTxt + ' GB RAM'));
+
+      var figs = el('div', 'node-figures');
+      var f1 = el('div', 'fig');
+      f1.appendChild(el('div', 'label', 'Score'));
+      f1.appendChild(el('div', 'v', num(n.score).toLocaleString(undefined, { maximumFractionDigits: 1 })));
+      var f2 = el('div', 'fig');
+      f2.appendChild(el('div', 'label', 'Chunks'));
+      f2.appendChild(el('div', 'v', fmtInt(n.chunks_done)));
+      figs.appendChild(f1);
+      figs.appendChild(f2);
+      card.appendChild(figs);
+
+      var pct = Math.max(0, Math.min(100, num(n.work_share) * 100));
+      var share = el('div', 'share');
+      var bar = el('div', 'bar');
+      var fill = el('i');
+      fill.style.width = pct.toFixed(1) + '%';
+      bar.appendChild(fill);
+      share.appendChild(bar);
+      var cap = el('div', 'share-cap');
+      var b = el('b', null, pct.toFixed(0) + '%');
+      cap.appendChild(b);
+      cap.appendChild(el('span', null, 'of all work done'));
+      share.appendChild(cap);
+      card.appendChild(share);
+
+      if (n.last_seen_s !== undefined && n.last_seen_s !== null) {
+        card.appendChild(el('div', 'lastseen', 'seen ' + fmtDur(n.last_seen_s) + ' ago'));
+      }
+      box.appendChild(card);
+    });
+  }
+
+  function resultText(j){
+    var r = j && j.result;
+    if (!r || typeof r !== 'object') return '';
+    if (r.pi_estimate !== undefined && r.pi_estimate !== null)
+      return 'π ≈ ' + num(r.pi_estimate).toFixed(5);
+    if (r.prime_count !== undefined && r.prime_count !== null)
+      return fmtInt(r.prime_count) + ' primes · largest ' + fmtInt(r.largest_prime);
+    if (r.pages !== undefined && r.pages !== null)
+      return fmtInt(r.pages) + ' pages scanned';
+    return '';
+  }
+
+  function renderJobs(jobs){
+    var box = $('jobs');
+    box.textContent = '';
+    if (!jobs.length) {
+      box.appendChild(el('div', 'empty', 'No jobs yet — give the grid something to do.'));
+      return;
+    }
+    jobs.forEach(function(j){
+      var status = String(j.status || 'pending').toLowerCase();
+      var row = el('div', 'job' + (status === 'running' ? ' running' : ''));
+
+      var top = el('div', 'job-top');
+      top.appendChild(el('div', 'job-name', TASK_NAMES[j.task_type] || j.task_type || 'task'));
+      top.appendChild(el('span', 'badge ' + status.replace(/[^a-z0-9_-]/g, ''), status));
+      if (num(j.redundancy) >= 2) {
+        top.appendChild(el('span', 'badge verify', '×' + num(j.redundancy) + ' verified'));
+      }
+      var right = el('div', 'job-right');
+      var pct = Math.max(0, Math.min(100, num(j.progress) * 100));
+      right.textContent = pct.toFixed(0) + '% · ' + fmtDur(j.elapsed_s);
+      top.appendChild(right);
+      row.appendChild(top);
+
+      var bar = el('div', 'job-bar');
+      var fill = el('i');
+      fill.style.width = pct.toFixed(1) + '%';
+      bar.appendChild(fill);
+      row.appendChild(bar);
+
+      if (status === 'done') {
+        var txt = resultText(j);
+        if (txt) row.appendChild(el('div', 'job-result', txt));
+      }
+      box.appendChild(row);
+    });
+  }
+
+  /* ---------- polling ---------- */
+
+  function poll(){
+    fetch('/api/stats', { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(d){ setOffline(false); render(d || {}); })
+      .catch(function(){ setOffline(true); });
+  }
+  poll();
+  setInterval(poll, 3000);
+
+  /* ---------- give work ---------- */
+
+  function msg(text, isErr){
+    var m = $('jobmsg');
+    m.textContent = text || '';
+    m.style.color = isErr ? '#b06a5f' : 'var(--mut)';
+    if (text) setTimeout(function(){ if (m.textContent === text) m.textContent = ''; }, 5000);
+  }
+
+  function submitJob(body, btn){
+    btn.disabled = true;
+    fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); })
+      .then(function(){ msg('job handed to the grid'); poll(); })
+      .catch(function(){ msg('could not reach the coordinator', true); })
+      .then(function(){ btn.disabled = false; });
+  }
+
+  $('b-pi').addEventListener('click', function(){
+    submitJob({ task_type: 'monte_carlo_pi', params: { samples: 10000000 }, redundancy: 1 }, this);
+  });
+
+  $('b-primes').addEventListener('click', function(){
+    submitJob({ task_type: 'prime_count', params: { start: 2, end: 2000000 }, redundancy: 2 }, this);
+  });
+
+  $('b-research').addEventListener('click', function(){
+    var q = $('r-query').value.trim();
+    var urls = $('r-urls').value.split('\n')
+      .map(function(s){ return s.trim(); })
+      .filter(Boolean);
+    if (!q) { msg('give the research a query', true); $('r-query').focus(); return; }
+    if (!urls.length) { msg('add at least one URL', true); $('r-urls').focus(); return; }
+    submitJob({ task_type: 'research_fetch', params: { query: q, urls: urls } }, this);
+    $('r-query').value = '';
+    $('r-urls').value = '';
+  });
+
+})();
+</script>
+</body>
+</html>

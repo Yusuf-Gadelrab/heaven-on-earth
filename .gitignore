@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+heaven.db*
+demo*.db*
+demo-*.log
+.heaven/

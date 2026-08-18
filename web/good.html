@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE GOOD MAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --gold:#d4af37;
+    --gold-deep:#b8962e;
+    --ink:#f5f0e6;
+    --mut:#8a8578;
+    --hair:1px solid rgba(212,175,55,.22);
+    --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg)}
+  body{
+    color:var(--ink);font-family:var(--sans);font-size:14px;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  a{color:var(--gold);text-decoration:none}
+  a:hover{color:var(--ink)}
+
+  /* ---------- header ---------- */
+  header{
+    flex:none;display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+    padding:20px 28px;border-bottom:var(--hair);background:var(--bg);
+  }
+  .title h1{
+    font-family:var(--serif);font-weight:300;font-size:clamp(22px,3.4vw,32px);
+    letter-spacing:.16em;line-height:1.1;
+  }
+  .title .sub{
+    font-family:var(--serif);font-style:italic;font-weight:300;
+    color:var(--mut);font-size:15px;margin-top:2px;
+  }
+  .spacer{flex:1}
+  .backlink{
+    font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;
+    border:var(--hair);padding:10px 16px;transition:border-color .25s,color .25s;
+  }
+  .backlink:hover{border-color:rgba(212,175,55,.55);color:var(--gold)}
+  #pinBtn{
+    font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--gold);background:transparent;border:1px solid rgba(212,175,55,.45);
+    padding:11px 18px;cursor:pointer;transition:all .25s;white-space:nowrap;
+  }
+  #pinBtn:hover{background:rgba(212,175,55,.08);border-color:var(--gold)}
+  #pinBtn.arming{
+    background:var(--gold);border-color:var(--gold);color:#0a0a0a;font-weight:600;
+  }
+  #offline{
+    display:none;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);
+    white-space:nowrap;
+  }
+  #offline .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mut);
+    margin-right:7px;vertical-align:1px;animation:fade 1.6s ease-in-out infinite}
+  body.offline #offline{display:inline-block}
+  @keyframes fade{0%,100%{opacity:.25}50%{opacity:1}}
+
+  /* ---------- map ---------- */
+  #mapwrap{flex:1;min-height:0;position:relative}
+  #map{position:absolute;inset:0;background:var(--bg)}
+  #map.crosshair, #map.crosshair *{cursor:crosshair !important}
+
+  /* ---------- legend ---------- */
+  .legend{
+    position:absolute;left:14px;bottom:26px;z-index:1000;
+    background:rgba(10,10,10,.88);border:var(--hair);
+    padding:14px 18px 12px;backdrop-filter:blur(6px);
+    max-width:210px;
+  }
+  .legend .label{
+    font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);
+    margin-bottom:9px;font-weight:500;
+  }
+  .legend .row{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--ink);
+    padding:2.5px 0;letter-spacing:.03em}
+  .legend .row .e{font-size:13px;width:18px;text-align:center}
+
+  /* ---------- pins ---------- */
+  .pin{
+    width:34px;height:34px;border-radius:50%;
+    background:#14120c;border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;line-height:1;
+    box-shadow:0 0 0 3px rgba(212,175,55,.16), 0 4px 14px rgba(0,0,0,.6);
+  }
+
+  /* ---------- leaflet chrome, dark ---------- */
+  .leaflet-container{font-family:var(--sans)}
+  .leaflet-popup-content-wrapper{
+    background:#100f0b;color:var(--ink);border:var(--hair);border-radius:2px;
+    box-shadow:0 10px 34px rgba(0,0,0,.65);
+  }
+  .leaflet-popup-tip{background:#100f0b;border:var(--hair)}
+  .leaflet-popup-content{margin:16px 18px;line-height:1.5}
+  .leaflet-popup-close-button{color:var(--mut) !important;font-size:18px !important;padding:6px 8px 0 0 !important}
+  .leaflet-popup-close-button:hover{color:var(--gold) !important}
+  .leaflet-bar a, .leaflet-bar a:hover{
+    background:#100f0b;color:var(--gold);border-bottom:1px solid rgba(212,175,55,.22);
+  }
+  .leaflet-bar a:hover{background:#1a1810}
+  .leaflet-bar{border:var(--hair) !important;box-shadow:0 4px 16px rgba(0,0,0,.5) !important}
+  .leaflet-control-attribution{
+    background:rgba(10,10,10,.75) !important;color:var(--mut) !important;font-size:9.5px !important;
+  }
+  .leaflet-control-attribution a{color:var(--gold-deep) !important}
+
+  /* ---------- popup content ---------- */
+  .pop{max-width:230px}
+  .pop-title{font-family:var(--serif);font-weight:500;font-size:19px;letter-spacing:.02em;
+    overflow-wrap:break-word}
+  .pop-cat{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);
+    margin-top:5px}
+  .pop-note{font-size:12.5px;color:var(--ink);margin-top:9px;overflow-wrap:break-word;white-space:pre-wrap}
+  .pop-date{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:10px}
+
+  /* ---------- add form ---------- */
+  .gform{width:230px}
+  .gform .label{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);
+    display:block;margin:11px 0 5px;font-weight:500}
+  .gform .label:first-child{margin-top:0}
+  .gform input, .gform select, .gform textarea{
+    width:100%;background:rgba(245,240,230,.04);border:var(--hair);color:var(--ink);
+    font-family:var(--sans);font-size:12.5px;padding:9px 11px;outline:none;border-radius:0;
+    transition:border-color .25s;
+  }
+  .gform select{appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--gold-deep) 50%),linear-gradient(135deg,var(--gold-deep) 50%,transparent 50%);
+    background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .gform select option{background:#100f0b;color:var(--ink)}
+  .gform textarea{min-height:62px;resize:vertical}
+  .gform input:focus, .gform select:focus, .gform textarea:focus{border-color:rgba(212,175,55,.6)}
+  .gform ::placeholder{color:#5c584d}
+  .gform .save{
+    margin-top:14px;width:100%;font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;font-weight:600;color:#0a0a0a;background:var(--gold);
+    border:1px solid var(--gold);padding:11px 0;cursor:pointer;transition:background .25s;
+  }
+  .gform .save:hover{background:var(--gold-deep);border-color:var(--gold-deep)}
+  .gform .save:disabled{opacity:.4;cursor:default}
+  .gform .err{font-size:10.5px;color:#b06a5f;letter-spacing:.06em;margin-top:9px;min-height:13px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <h1>THE GOOD MAP</h1>
+    <div class="sub">Every pin is something kind someone noticed.</div>
+  </div>
+  <div class="spacer"></div>
+  <span id="offline"><span class="dot"></span>coordinator offline — retrying</span>
+  <button id="pinBtn" type="button">Pin something good</button>
+  <a class="backlink" href="/">← Mission Control</a>
+</header>
+
+<div id="mapwrap">
+  <div id="map"></div>
+  <div class="legend" id="legend">
+    <div class="label">Legend</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var CATS = {
+    'food-share':       { e: '🥫', l: 'Food share' },
+    'community-fridge': { e: '🧊', l: 'Community fridge' },
+    'little-library':   { e: '📚', l: 'Little free library' },
+    'cleanup':          { e: '🧹', l: 'Cleanup crew' },
+    'water-station':    { e: '💧', l: 'Water station' },
+    'kindness':         { e: '🤲', l: 'Act of kindness' }
+  };
+  var FALLBACK = 'kindness';
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
+  }
+  function cat(key){ return CATS[key] || CATS[FALLBACK]; }
+
+  /* ---------- legend ---------- */
+  var legend = document.getElementById('legend');
+  Object.keys(CATS).forEach(function(k){
+    var row = el('div', 'row');
+    row.appendChild(el('span', 'e', CATS[k].e));
+    row.appendChild(el('span', null, CATS[k].l));
+    legend.appendChild(row);
+  });
+
+  /* ---------- map ---------- */
+  var map = L.map('map', { zoomControl: true }).setView([37.335, -121.881], 13);
+  L.tileLayer('https://{s}.basemap.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20
+  }).addTo(map);
+
+  var deedsLayer = L.layerGroup().addTo(map);
+
+  function icon(catKey){
+    var c = cat(catKey);
+    var wrap = document.createElement('div');
+    wrap.appendChild(el('div', 'pin', c.e));  // emoji comes from our own map, never from server data
+    return L.divIcon({
+      className: '',
+      html: wrap.innerHTML,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -20]
+    });
+  }
+
+  function popupContent(d){
+    var c = cat(d.category);
+    var w = el('div', 'pop');
+    w.appendChild(el('div', 'pop-title', d.title || '(untitled)'));
+    w.appendChild(el('div', 'pop-cat', c.e + ' ' + c.l));
+    if (d.note) w.appendChild(el('div', 'pop-note', d.note));
+    var created = Number(d.created);
+    if (isFinite(created) && created > 0) {
+      w.appendChild(el('div', 'pop-date',
+        new Date(created * 1000).toLocaleDateString(undefined,
+          { year: 'numeric', month: 'short', day: 'numeric' })));
+    }
+    return w;
+  }
+
+  /* ---------- load deeds ---------- */
+  var fitted = false;
+  function setOffline(off){ document.body.classList.toggle('offline', !!off); }
+
+  function load(){
+    fetch('/api/good', { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(data){
+        setOffline(false);
+        var deeds = (data && Array.isArray(data.deeds)) ? data.deeds : [];
+        deedsLayer.clearLayers();
+        var pts = [];
+        deeds.forEach(function(d){
+          var lat = Number(d.lat), lng = Number(d.lng);
+          if (!isFinite(lat) || !isFinite(lng)) return;
+          var m = L.marker([lat, lng], { icon: icon(d.category) });
+          m.bindPopup(popupContent(d));
+          deedsLayer.addLayer(m);
+          pts.push([lat, lng]);
+        });
+        if (!fitted && pts.length) {
+          map.fitBounds(pts, { padding: [56, 56], maxZoom: 15 });
+          fitted = true;
+        }
+      })
+      .catch(function(){ setOffline(true); });
+  }
+  load();
+  setInterval(load, 6000);  // doubles as the offline retry loop
+
+  /* ---------- add mode ---------- */
+  var adding = false;
+  var formPopup = null;
+  var pinBtn = document.getElementById('pinBtn');
+  var IDLE_LABEL = 'Pin something good';
+  var ARMED_LABEL = 'click the map where you saw it · esc to cancel';
+
+  function enterAdd(){
+    adding = true;
+    pinBtn.classList.add('arming');
+    pinBtn.textContent = ARMED_LABEL;
+    map.getContainer().classList.add('crosshair');
+  }
+  function exitAdd(){
+    adding = false;
+    pinBtn.classList.remove('arming');
+    pinBtn.textContent = IDLE_LABEL;
+    map.getContainer().classList.remove('crosshair');
+    if (formPopup) { map.closePopup(formPopup); formPopup = null; }
+  }
+  pinBtn.addEventListener('click', function(){ adding ? exitAdd() : enterAdd(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && adding) exitAdd();
+  });
+
+  map.on('click', function(e){
+    if (!adding) return;
+    openForm(e.latlng);
+  });
+
+  function openForm(ll){
+    var w = el('div', 'gform');
+
+    w.appendChild(el('label', 'label', 'What did you see?'));
+    var title = document.createElement('input');
+    title.type = 'text'; title.maxLength = 120; title.required = true;
+    title.placeholder = 'Free bread on the corner table';
+    w.appendChild(title);
+
+    w.appendChild(el('label', 'label', 'Category'));
+    var sel = document.createElement('select');
+    Object.keys(CATS).forEach(function(k){
+      var o = document.createElement('option');
+      o.value = k;
+      o.textContent = CATS[k].e + '  ' + CATS[k].l;
+      sel.appendChild(o);
+    });
+    w.appendChild(sel);
+
+    w.appendChild(el('label', 'label', 'Note (optional)'));
+    var note = document.createElement('textarea');
+    note.maxLength = 500;
+    note.placeholder = 'Anything worth knowing…';
+    w.appendChild(note);
+
+    var save = el('button', 'save', 'Save this pin');
+    save.type = 'button';
+    var err = el('div', 'err', '');
+    w.appendChild(save);
+    w.appendChild(err);
+
+    save.addEventListener('click', function(){
+      var t = title.value.trim();
+      if (!t) { err.textContent = 'a title is required'; title.focus(); return; }
+      save.disabled = true;
+      err.textContent = '';
+      fetch('/api/good', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: ll.lat,
+          lng: ll.lng,
+          category: sel.value,
+          title: t,
+          note: note.value.trim()
+        })
+      })
+        .then(function(r){ if (!r.ok) throw new Error(r.status); })
+        .then(function(){ exitAdd(); load(); })
+        .catch(function(){
+          err.textContent = 'could not save — coordinator offline?';
+          save.disabled = false;
+        });
+    });
+
+    formPopup = L.popup({ maxWidth: 280, autoClose: false, closeOnClick: false })
+      .setLatLng(ll)
+      .setContent(w)
+      .openOn(map);
+    setTimeout(function(){ title.focus(); }, 50);
+  }
+
+})();
+</script>
+</body>
+</html>
